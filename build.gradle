@@ -33,7 +33,7 @@ plugins {
 // which causes issues when running Sponge from Intellij.
 // We force Gradle to use 1.3.1, which resolves the issue
 configurations.all {
-    resolutionStrategy { 
+    resolutionStrategy {
         force 'com.typesafe:config:1.3.1'
     }
 }
@@ -181,3 +181,44 @@ compileTestKotlin {
 }
 
 license.include '**/*.kt'
+
+// Based on https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += sourceSets.test.runtimeClasspath
+            runtimeClasspath += sourceSets.test.runtimeClasspath
+            srcDir file('src/integration-test/java')
+        }
+        kotlin {
+            compileClasspath += sourceSets.test.runtimeClasspath
+            runtimeClasspath += sourceSets.test.runtimeClasspath
+            srcDir file('src/integration-test/kotlin')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+
+configurations {
+    integrationTestCompile.extendsFrom compile
+    integrationTestCompile.extendsFrom testCompile
+    //integrationTestCompileKotlin.kotlinOptions.jvmTarget = "1.8"
+}
+
+dependencies {
+    integrationTestCompile sourceSets.main.output
+    integrationTestCompile sourceSets.test.output
+}
+
+task runMcTester(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+
+compileIntegrationTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
