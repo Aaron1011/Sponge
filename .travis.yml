@@ -16,7 +16,7 @@ before_install:
   - scripts/run-xvfb
 
 install: ./gradlew setupDecompWorkspace
-script: DISPLAY=:99 ./gradlew build runMcTester --debug --stacktrace
+script: DISPLAY=:99 ./gradlew build runMcTester --info --stacktrace
 after_failure: scripts/upload
 
 notifications:
